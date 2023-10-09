@@ -33,11 +33,20 @@ class FakespotViewModel {
                         .settingsCard
                     ]
                 } else if product.notAnalyzedCardVisible {
-                    return [
-                        .noAnalysisCard,
+                    // Don't show not analyzed message card if analysis is in progress
+                    var cards: [ViewElement] = []
+
+                    if analysisStatus?.isAnalyzing == true {
+                        cards.append(.progressAnalysisCard)
+                    } else {
+                        cards.append(.noAnalysisCard)
+                    }
+
+                    cards += [
                         .qualityDeterminationCard,
                         .settingsCard
                     ]
+                    return cards
                 } else if product.notEnoughReviewsCardVisible {
                     return [
                         .messageCard(.notEnoughReviews),
@@ -101,6 +110,7 @@ class FakespotViewModel {
         case qualityDeterminationCard
         case settingsCard
         case noAnalysisCard
+        case progressAnalysisCard
         case messageCard(MessageType)
         enum MessageType {
             case genericError
@@ -126,6 +136,7 @@ class FakespotViewModel {
 
     let shoppingProduct: ShoppingProduct
     var onStateChange: (() -> Void)?
+    var isSwiping = false
     var onAnalysisStatusChange: (() -> Void)?
 
     private var fetchProductTask: Task<Void, Never>?
@@ -215,14 +226,12 @@ class FakespotViewModel {
     let analysisProgressViewModel = FakespotMessageCardViewModel(
         type: .infoLoading,
         title: .Shopping.InfoCardProgressAnalysisTitle,
-        description: .Shopping.InfoCardProgressAnalysisDescription,
         a11yCardIdentifier: AccessibilityIdentifiers.Shopping.AnalysisProgressInfoCard.card,
-        a11yTitleIdentifier: AccessibilityIdentifiers.Shopping.AnalysisProgressInfoCard.title,
-        a11yDescriptionIdentifier: AccessibilityIdentifiers.Shopping.AnalysisProgressInfoCard.description
+        a11yTitleIdentifier: AccessibilityIdentifiers.Shopping.AnalysisProgressInfoCard.title
     )
 
     let settingsCardViewModel = FakespotSettingsCardViewModel()
-    let noAnalysisCardViewModel = FakespotNoAnalysisCardViewModel()
+    var noAnalysisCardViewModel = FakespotNoAnalysisCardViewModel()
     let reviewQualityCardViewModel = FakespotReviewQualityCardViewModel()
     var optInCardViewModel = FakespotOptInCardViewModel()
 
@@ -230,6 +239,7 @@ class FakespotViewModel {
          profile: Profile = AppContainer.shared.resolve()) {
         self.shoppingProduct = shoppingProduct
         optInCardViewModel.productSitename = shoppingProduct.product?.sitename
+        reviewQualityCardViewModel.productSitename = shoppingProduct.product?.sitename
         self.prefs = profile.prefs
     }
 
@@ -290,5 +300,45 @@ class FakespotViewModel {
     func onViewControllerDeinit() {
         fetchProductTask?.cancel()
         observeProductTask?.cancel()
+    }
+
+    @available(iOS 15.0, *)
+    func getCurrentDetent(for presentedController: UIPresentationController?) -> UISheetPresentationController.Detent.Identifier? {
+        guard let sheetController = presentedController as? UISheetPresentationController else { return nil }
+        return sheetController.selectedDetentIdentifier
+    }
+
+    // MARK: - Telemetry
+    func recordDismissTelemetry(by action: TelemetryWrapper.EventExtraKey.Shopping) {
+        TelemetryWrapper.recordEvent(
+            category: .action,
+            method: .close,
+            object: .shoppingBottomSheet,
+            extras: [TelemetryWrapper.ExtraKey.action.rawValue: action.rawValue]
+        )
+    }
+
+    func recordTelemetry(for viewElement: ViewElement) {
+        switch viewElement {
+        case .messageCard(.needsAnalysis):
+            TelemetryWrapper.recordEvent(
+                category: .action,
+                method: .tap,
+                object: .shoppingNeedsAnalysisCardViewPrimaryButton
+            )
+        default: break
+        }
+    }
+
+    @available(iOS 15.0, *)
+    func recordBottomSheetDisplayed(_ presentedController: UIPresentationController?) {
+        let currentDetent = getCurrentDetent(for: presentedController)
+        let state: TelemetryWrapper.EventExtraKey.Shopping = currentDetent == .large ? .fullView : .halfView
+        TelemetryWrapper.recordEvent(
+            category: .action,
+            method: .view,
+            object: .shoppingBottomSheet,
+            extras: [TelemetryWrapper.ExtraKey.size.rawValue: state.rawValue]
+        )
     }
 }
