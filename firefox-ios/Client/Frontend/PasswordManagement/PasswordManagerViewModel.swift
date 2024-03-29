@@ -75,20 +75,21 @@ final class PasswordManagerViewModel {
     /// Searches SQLite database for logins that match query.
     /// Wraps the SQLiteLogins method to allow us to cancel it from our end.
     func queryLogins(_ query: String, completion: @escaping (([LoginRecord]) -> Void)) {
-        profile.logins.searchLoginsWithQuery(query).upon { result in
+        profile.logins.searchLoginsWithQuery(query) { result in
             ensureMainThread {
                 // Check any failure, Ex. database is closed
-                guard result.failureValue == nil else {
+                switch result {
+                case .success(let login):
+                    // Make sure logins exist
+                    guard let login = login else {
+                        completion([])
+                        return
+                    }
+                    completion([login])
+                case .failure:
                     self.delegate?.loginSectionsDidUpdate()
                     completion([])
-                    return
                 }
-                // Make sure logins exist
-                guard let logins = result.successValue else {
-                    completion([])
-                    return
-                }
-                completion(logins.asArray())
             }
         }
     }
@@ -156,11 +157,16 @@ final class PasswordManagerViewModel {
     }
 
     public func save(loginRecord: LoginEntry, completion: @escaping ((String?) -> Void)) {
-        profile.logins.addLogin(login: loginRecord).upon { result in
-            if result.isSuccess {
+        profile.logins.addLogin(login: loginRecord) { result in
+            var value: String?
+            switch result {
+            case .success(let login):
+                value = login?.record.id
                 self.sendLoginsSavedTelemetry()
+            case .failure:
+                break
             }
-            completion(result.successValue)
+            completion(value)
         }
     }
 
