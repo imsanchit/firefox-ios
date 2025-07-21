@@ -586,8 +586,8 @@
 		782B0A362AB41DFC0049EE1A /* FakespotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782B0A352AB41DFC0049EE1A /* FakespotTests.swift */; };
 		787EDD852943EE75002B93AE /* JumpBackInTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787EDD832943EE75002B93AE /* JumpBackInTests.swift */; };
 		78FE1E892B040E7000338465 /* FirefoxSuggestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78FE1E872B040E7000338465 /* FirefoxSuggestTest.swift */; };
-		7ADC1D192C27D35B003ED924 /* ActionProviderBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADC1D182C27D35B003ED924 /* ActionProviderBuilder.swift */; };
 		7AC7E0502C160FF800051D4D /* ReaderPanelEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC7E04F2C160FF800051D4D /* ReaderPanelEmptyStateView.swift */; };
+		7ADC1D192C27D35B003ED924 /* ActionProviderBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADC1D182C27D35B003ED924 /* ActionProviderBuilder.swift */; };
 		7B10AA9F1E3A15020002DD08 /* DataExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B10AA9E1E3A15020002DD08 /* DataExtensions.swift */; };
 		7B10AABB1E3A1F650002DD08 /* URLRequestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B10AABA1E3A1F650002DD08 /* URLRequestExtensions.swift */; };
 		7B2142FE1E5E055000CDD3FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7B2142FC1E5E055000CDD3FC /* InfoPlist.strings */; };
@@ -10239,15 +10239,6 @@
 			path = Generated;
 			sourceTree = "<group>";
 		};
-		7AC7E04E2C160EB600051D4D /* Reader */ = {
-			isa = PBXGroup;
-			children = (
-				59A685F4EAD19EDEC854BCA4 /* ReaderPanel.swift */,
-				7AC7E04F2C160FF800051D4D /* ReaderPanelEmptyStateView.swift */,
-			);
-			path = Reader;
-			sourceTree = "<group>";
-		};
 		630FE1312C7FB42500D9D6B2 /* Mock */ = {
 			isa = PBXGroup;
 			children = (
@@ -10272,6 +10263,15 @@
 				63F7A9AB2C752BB0005846F5 /* NativeErrorPageViewController.swift */,
 			);
 			path = NativeErrorPage;
+			sourceTree = "<group>";
+		};
+		7AC7E04E2C160EB600051D4D /* Reader */ = {
+			isa = PBXGroup;
+			children = (
+				59A685F4EAD19EDEC854BCA4 /* ReaderPanel.swift */,
+				7AC7E04F2C160FF800051D4D /* ReaderPanelEmptyStateView.swift */,
+			);
+			path = Reader;
 			sourceTree = "<group>";
 		};
 		7B0B1B9C1C1B69F500DF4AB5 /* Extensions */ = {
